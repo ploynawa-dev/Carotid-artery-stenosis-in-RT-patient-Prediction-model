@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RICAS-ML | ICE Risk Prediction</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    /* ── Reset & base ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue:      #1a56db;
+      --blue-lt:   #ebf5ff;
+      --blue-dk:   #1e429f;
+      --green:     #057a55;
+      --green-lt:  #def7ec;
+      --amber:     #b45309;
+      --amber-lt:  #fef3c7;
+      --red:       #c81e1e;
+      --red-lt:    #fde8e8;
+      --gray:      #6b7280;
+      --gray-lt:   #f9fafb;
+      --border:    #e5e7eb;
+      --text:      #111827;
+      --text-sm:   #6b7280;
+      --shadow:    0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+      --radius:    10px;
+    }
+    body {
+      font-family: 'Segoe UI', 'Noto Sans Thai', Arial, sans-serif;
+      background: #f3f4f6;
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Header ───────────────────────────────────────────────── */
+    header {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1a56db 100%);
+      color: #fff;
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.18);
+    }
+    header .logo {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      background: rgba(255,255,255,.15);
+      padding: 6px 14px;
+      border-radius: 8px;
+    }
+    header .title-group h1 { font-size: 1.25rem; font-weight: 700; }
+    header .title-group p  { font-size: .85rem; opacity: .82; margin-top: 2px; }
+    header .badge {
+      margin-left: auto;
+      background: rgba(255,255,255,.18);
+      border: 1px solid rgba(255,255,255,.3);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: .78rem;
+      font-weight: 600;
+    }
+
+    /* ── Layout ───────────────────────────────────────────────── */
+    main {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 28px 20px 60px;
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 24px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      main { grid-template-columns: 1fr; }
+    }
+
+    /* ── Card ─────────────────────────────────────────────────── */
+    .card {
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+    .card-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .card-header h2 {
+      font-size: .95rem;
+      font-weight: 700;
+      color: var(--blue-dk);
+    }
+    .card-header .sub {
+      font-size: .78rem;
+      color: var(--text-sm);
+      margin-left: auto;
+    }
+    .card-body { padding: 18px 20px; }
+
+    /* ── Section accordion ────────────────────────────────────── */
+    .section { margin-bottom: 10px; }
+    .section-toggle {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--gray-lt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-size: .88rem;
+      font-weight: 600;
+      color: var(--blue-dk);
+      transition: background .15s;
+    }
+    .section-toggle:hover { background: var(--blue-lt); }
+    .section-toggle .chevron {
+      margin-left: auto;
+      transition: transform .2s;
+    }
+    .section-toggle.open .chevron { transform: rotate(180deg); }
+    .section-body {
+      display: none;
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      padding: 16px;
+    }
+    .section-body.open { display: block; }
+
+    /* ── Form grid ─────────────────────────────────────────────── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-group label {
+      font-size: .76rem;
+      font-weight: 600;
+      color: var(--text-sm);
+      line-height: 1.3;
+    }
+    .form-group label .th { display: block; font-size: .72rem; color: #9ca3af; }
+    .form-group input[type=number],
+    .form-group select {
+      width: 100%;
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: .875rem;
+      color: var(--text);
+      background: #fff;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .form-group input[type=number]:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(26,86,219,.12);
+    }
+
+    /* ── Checkbox group ───────────────────────────────────────── */
+    .check-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 8px;
+    }
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      transition: background .12s, border-color .12s;
+    }
+    .check-item:hover { background: var(--blue-lt); border-color: var(--blue); }
+    .check-item input[type=checkbox] { margin-top: 2px; accent-color: var(--blue); }
+    .check-item .label-text { font-size: .82rem; line-height: 1.35; }
+    .check-item .label-text .th { font-size: .72rem; color: #9ca3af; }
+
+    /* ── Submit button ────────────────────────────────────────── */
+    .btn-predict {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #1a56db, #1e429f);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 20px;
+      letter-spacing: .3px;
+      transition: opacity .15s, transform .1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-predict:hover  { opacity: .92; }
+    .btn-predict:active { transform: scale(.99); }
+    .btn-predict:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* ── Results panel ────────────────────────────────────────── */
+    #results { position: sticky; top: 20px; }
+
+    .risk-banner {
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 18px;
+      transition: all .3s;
+    }
+    .risk-banner.low      { background: var(--green-lt); border: 2px solid #a7f3d0; }
+    .risk-banner.moderate { background: var(--amber-lt); border: 2px solid #fcd34d; }
+    .risk-banner.high     { background: var(--red-lt);   border: 2px solid #fca5a5; }
+    .risk-banner .big-pct {
+      font-size: 3rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .risk-banner.low      .big-pct { color: var(--green); }
+    .risk-banner.moderate .big-pct { color: var(--amber); }
+    .risk-banner.high     .big-pct { color: var(--red); }
+    .risk-banner .label-en { font-size: 1.1rem; font-weight: 700; margin-top: 4px; }
+    .risk-banner .label-th { font-size: .88rem; color: var(--text-sm); }
+    .risk-banner .note     { font-size: .74rem; color: var(--text-sm); margin-top: 8px; }
+
+    /* ── Model prediction bars ────────────────────────────────── */
+    .model-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .model-row .model-name {
+      width: 130px;
+      flex-shrink: 0;
+      font-size: .78rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .model-row .bar-wrap {
+      flex: 1;
+      background: #e5e7eb;
+      border-radius: 20px;
+      height: 10px;
+      overflow: hidden;
+    }
+    .model-row .bar-fill {
+      height: 100%;
+      border-radius: 20px;
+      transition: width .6s ease;
+      background: linear-gradient(90deg, #3b82f6, #1a56db);
+    }
+    .model-row .pct-label {
+      width: 46px;
+      text-align: right;
+      font-size: .8rem;
+      font-weight: 700;
+      color: var(--blue-dk);
+    }
+
+    /* ── SHAP chart ───────────────────────────────────────────── */
+    #shap-section { margin-top: 16px; }
+    #shap-section h3 {
+      font-size: .82rem;
+      font-weight: 700;
+      color: var(--text-sm);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 10px;
+    }
+    #shap-canvas-wrap { position: relative; height: 260px; }
+
+    /* ── Disclaimer ───────────────────────────────────────────── */
+    .disclaimer {
+      margin-top: 16px;
+      padding: 12px 14px;
+      background: #fff7ed;
+      border-left: 3px solid #f59e0b;
+      border-radius: 6px;
+      font-size: .74rem;
+      color: #78350f;
+      line-height: 1.5;
+    }
+
+    /* ── Loading spinner ──────────────────────────────────────── */
+    .spinner {
+      display: none;
+      width: 22px; height: 22px;
+      border: 3px solid rgba(255,255,255,.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Cohort footnote ──────────────────────────────────────── */
+    .cohort-info {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+      font-size: .78rem;
+    }
+    .cohort-chip {
+      background: var(--blue-lt);
+      border: 1px solid #bfdbfe;
+      border-radius: 20px;
+      padding: 4px 12px;
+      color: var(--blue-dk);
+      font-weight: 600;
+    }
+
+    /* ── Placeholder state ────────────────────────────────────── */
+    #placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 200px;
+      color: #9ca3af;
+      gap: 10px;
+      text-align: center;
+    }
+    #placeholder svg { opacity: .4; }
+    #results-inner { display: none; }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ─────────────────────────────────────────────────────────────── -->
+<header>
+  <div class="logo">RICAS</div>
+  <div class="title-group">
+    <h1>ICE Risk Prediction · การทำนายความเสี่ยง Ischemic Cerebrovascular Event</h1>
+    <p>Head &amp; Neck Cancer · Post-Radiotherapy · Machine Learning Clinical Decision Support</p>
+  </div>
+  <div class="badge">Phase 4 · Research Preview</div>
+</header>
+
+<!-- ── Main ───────────────────────────────────────────────────────────────── -->
+<main>
+  <!-- LEFT: Input form -->
+  <div>
+    <div class="card">
+      <div class="card-header">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#1a56db" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        <h2>Patient Data Entry · กรอกข้อมูลผู้ป่วย</h2>
+        <span class="sub">35 features · 4 ML models</span>
+      </div>
+      <div class="card-body">
+        <form id="form" autocomplete="off">
+
+          <!-- Demographics -->
+          <div class="section">
+            <button type="button" class="section-toggle open" data-target="s-demo">
+              <svg width="16" height="16" fill="#1a56db" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+              Demographics &amp; Clinical · ข้อมูลทั่วไป
+              <svg class="chevron" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div class="section-body open" id="s-demo">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Age (years)<span class="th">อายุ (ปี)</span></label>
+                  <input type="number" name="Age" value="60" min="18" max="100" step="1" required />
+                </div>
+                <div class="form-group">
+                  <label>BMI (kg/m²)<span class="th">ดัชนีมวลกาย</span></label>
+                  <input type="number" name="BMI" value="22.5" min="10" max="60" step="0.1" />
+                </div>
+                <div class="form-group">
+                  <label>Sex · เพศ</label>
+                  <select name="sex_male">
+                    <option value="1">Male · ชาย</option>
+                    <option value="0">Female · หญิง</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>HNC Stage<span class="th">ระยะมะเร็งศีรษะ-คอ</span></label>
+                  <select name="hnc_stage">
+                    <option value="0">In situ</option>
+                    <option value="1">Stage I</option>
+                    <option value="2">Stage II</option>
+                    <option value="3" selected>Stage III</option>
+                    <option value="4">Stage IV</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Comorbidities -->
+          <div class="section">
+            <button type="button" class="section-toggle" data-target="s-comorbid">
+              <svg width="16" height="16" fill="#1a56db" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/></svg>
+              Comorbidities · โรคประจำตัว
+              <svg class="chevron" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div class="section-body" id="s-comorbid">
+              <div class="check-grid">
+                <label class="check-item"><input type="checkbox" name="htn" value="1" /><span class="label-text">Hypertension<span class="th">ความดันโลหิตสูง</span></span></label>
+                <label class="check-item"><input type="checkbox" name="dm" value="1" /><span class="label-text">Diabetes (DM)<span class="th">เบาหวาน</span></span></label>
+                <label class="check-item"><input type="checkbox" name="dlp" value="1" /><span class="label-text">Dyslipidemia<span class="th">ไขมันในเลือดสูง</span></span></label>
+                <label class="check-item"><input type="checkbox" name="cad" value="1" /><span class="label-text">Coronary Artery Disease<span class="th">โรคหลอดเลือดหัวใจ</span></span></label>
+                <label class="check-item"><input type="checkbox" name="pad" value="1" /><span class="label-text">Peripheral Artery Disease<span class="th">โรคหลอดเลือดส่วนปลาย</span></span></label>
+                <label class="check-item"><input type="checkbox" name="heart_disease" value="1" /><span class="label-text">Heart Disease<span class="th">โรคหัวใจ</span></span></label>
+                <label class="check-item"><input type="checkbox" name="thyroid" value="1" /><span class="label-text">Thyroid Disease<span class="th">โรคไทรอยด์</span></span></label>
+                <label class="check-item"><input type="checkbox" name="smoking" value="1" /><span class="label-text">Smoking<span class="th">สูบบุหรี่</span></span></label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Medications -->
+          <div class="section">
+            <button type="button" class="section-toggle" data-target="s-meds">
+              <svg width="16" height="16" fill="#1a56db" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
+              Medications · ยา
+              <svg class="chevron" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div class="section-body" id="s-meds">
+              <div class="check-grid">
+                <label class="check-item"><input type="checkbox" name="antiplatelet" value="1" /><span class="label-text">Antiplatelet<span class="th">ยาต้านเกล็ดเลือด</span></span></label>
+                <label class="check-item"><input type="checkbox" name="anticoagulant" value="1" /><span class="label-text">Anticoagulant<span class="th">ยาต้านการแข็งตัวของเลือด</span></span></label>
+                <label class="check-item"><input type="checkbox" name="acei" value="1" /><span class="label-text">ACEI<span class="th">ยา ACEI</span></span></label>
+                <label class="check-item"><input type="checkbox" name="ccb" value="1" /><span class="label-text">CCB<span class="th">ยา CCB</span></span></label>
+                <label class="check-item"><input type="checkbox" name="statin" value="1" /><span class="label-text">Statin<span class="th">ยาสแตติน</span></span></label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Radiotherapy -->
+          <div class="section">
+            <button type="button" class="section-toggle" data-target="s-rt">
+              <svg width="16" height="16" fill="none" stroke="#1a56db" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path stroke-linecap="round" d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+              Radiotherapy · การฉายแสง
+              <svg class="chevron" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div class="section-body" id="s-rt">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Total Dose (Gy)<span class="th">ปริมาณรังสีรวม (Gy)</span></label>
+                  <input type="number" name="rt_total_dose" value="66" min="0" max="100" step="0.5" />
+                </div>
+                <div class="form-group">
+                  <label>Dose/Fraction (Gy)<span class="th">ปริมาณต่อครั้ง (Gy)</span></label>
+                  <input type="number" name="rt_dose_per_fraction" value="2" min="0" max="10" step="0.1" />
+                </div>
+                <div class="form-group">
+                  <label>No. Fractions<span class="th">จำนวนครั้งฉายแสง</span></label>
+                  <input type="number" name="rt_fractions" value="33" min="0" max="80" step="1" />
+                </div>
+              </div>
+              <div class="check-grid" style="margin-top:12px;">
+                <label class="check-item"><input type="checkbox" name="rt_definitive" value="1" checked /><span class="label-text">Definitive RT<span class="th">ฉายแสงหลัก</span></span></label>
+                <label class="check-item"><input type="checkbox" name="rt_adjuvant" value="1" /><span class="label-text">Adjuvant RT<span class="th">ฉายแสงเสริม</span></span></label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Carotid imaging -->
+          <div class="section">
+            <button type="button" class="section-toggle" data-target="s-carotid">
+              <svg width="16" height="16" fill="none" stroke="#1a56db" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+              Carotid Imaging · ภาพหลอดเลือด Carotid
+              <svg class="chevron" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div class="section-body" id="s-carotid">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Max Stenosis Pre-RT (%)<span class="th">ความตีบสูงสุดก่อนฉายแสง</span></label>
+                  <input type="number" name="max_stenosis_pre_rt" value="0" min="0" max="100" step="1" />
+                </div>
+                <div class="form-group">
+                  <label>Total Plaque Score Pre-RT<span class="th">คะแนน Plaque รวม</span></label>
+                  <input type="number" name="total_plaque_pre_rt" value="0" min="0" max="30" step="0.5" />
+                </div>
+                <div class="form-group">
+                  <label>Mean IMT Pre-RT (mm)<span class="th">IMT เฉลี่ย (mm)</span></label>
+                  <input type="number" name="mean_imt_pre_rt" value="0.7" min="0" max="5" step="0.01" />
+                </div>
+              </div>
+              <div class="check-grid" style="margin-top:12px;">
+                <label class="check-item"><input type="checkbox" name="seen_carotid_pre_rt" value="1" /><span class="label-text">Carotid Lesion Pre-RT<span class="th">พบรอยโรคก่อนฉายแสง</span></span></label>
+                <label class="check-item"><input type="checkbox" name="sig_stenosis_pre_rt" value="1" /><span class="label-text">Sig. Stenosis &gt;50% Pre-RT<span class="th">ตีบ &gt;50% ก่อนฉายแสง</span></span></label>
+                <label class="check-item"><input type="checkbox" name="seen_carotid_post_rt" value="1" /><span class="label-text">Carotid Lesion Post-RT<span class="th">พบรอยโรคหลังฉายแสง</span></span></label>
+                <label class="check-item"><input type="checkbox" name="progression_post_rt" value="1" /><span class="label-text">Progression Post-RT<span class="th">หลอดเลือดแย่ลงหลังฉายแสง</span></span></label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lab values -->
+          <div class="section">
+            <button type="button" class="section-toggle" data-target="s-labs">
+              <svg width="16" height="16" fill="none" stroke="#1a56db" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+              Laboratory Values · ค่าห้องปฏิบัติการ
+              <svg class="chevron" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div class="section-body" id="s-labs">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>BUN (mg/dL)</label>
+                  <input type="number" name="BUN" value="14" min="0" max="200" step="0.1" />
+                </div>
+                <div class="form-group">
+                  <label>Creatinine (mg/dL)<span class="th">ครีเอตินีน</span></label>
+                  <input type="number" name="Cr" value="0.9" min="0" max="20" step="0.01" />
+                </div>
+                <div class="form-group">
+                  <label>GFR (mL/min)</label>
+                  <input type="number" name="GFR" value="85" min="0" max="200" step="1" />
+                </div>
+                <div class="form-group">
+                  <label>Total Cholesterol (mg/dL)<span class="th">คอเลสเตอรอลรวม</span></label>
+                  <input type="number" name="Total_cholesterol" value="180" min="0" max="600" step="1" />
+                </div>
+                <div class="form-group">
+                  <label>LDL (mg/dL)</label>
+                  <input type="number" name="LDL" value="110" min="0" max="500" step="1" />
+                </div>
+                <div class="form-group">
+                  <label>Fasting Blood Sugar (mg/dL)<span class="th">น้ำตาลกลูโคส</span></label>
+                  <input type="number" name="Fasting_blood_sugar" value="95" min="0" max="600" step="1" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-predict" id="btn-submit">
+            <span id="btn-text">Predict ICE Risk · คำนวณความเสี่ยง</span>
+            <div class="spinner" id="spinner"></div>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Results -->
+  <div id="results">
+    <div class="cohort-info">
+      <span class="cohort-chip">N = 933 patients</span>
+      <span class="cohort-chip">ICE = 1.4% (13/933)</span>
+      <span class="cohort-chip">RICAS-ML v1.0</span>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#1a56db" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        <h2>Prediction Results · ผลการทำนาย</h2>
+      </div>
+      <div class="card-body">
+
+        <!-- Placeholder -->
+        <div id="placeholder">
+          <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          <p style="font-size:.9rem;font-weight:600;">กรอกข้อมูลผู้ป่วยแล้วกด Predict</p>
+          <p style="font-size:.78rem;">Fill in patient data and press Predict</p>
+        </div>
+
+        <!-- Results -->
+        <div id="results-inner">
+          <div class="risk-banner" id="risk-banner">
+            <div class="big-pct" id="big-pct">--</div>
+            <div class="label-en" id="label-en">--</div>
+            <div class="label-th" id="label-th">--</div>
+            <div class="note">Average across all available models</div>
+          </div>
+
+          <div style="margin-bottom:6px;font-size:.78rem;font-weight:700;color:var(--text-sm);text-transform:uppercase;letter-spacing:.4px;">
+            Model Predictions · ผลแต่ละโมเดล
+          </div>
+          <div id="model-bars"></div>
+
+          <div id="shap-section" style="display:none;">
+            <h3>Top Risk Factors (SHAP) · ปัจจัยเสี่ยงสำคัญ — <span id="shap-model-name"></span></h3>
+            <div id="shap-canvas-wrap">
+              <canvas id="shap-chart"></canvas>
+            </div>
+          </div>
+
+          <div class="disclaimer">
+            ⚠️ <strong>Research tool only · เครื่องมือวิจัยเท่านั้น</strong><br>
+            This system is for academic research and demonstration purposes. It does not replace clinical judgment.
+            All predictions must be interpreted by a qualified clinician in context of individual patient circumstances.
+            Cohort: 933 HNC patients post-RT (RICAS study). ICE prevalence: 1.4%.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+// ── Accordion ─────────────────────────────────────────────────────────────────
+document.querySelectorAll('.section-toggle').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = document.getElementById(btn.dataset.target);
+    const isOpen = target.classList.contains('open');
+    target.classList.toggle('open', !isOpen);
+    btn.classList.toggle('open', !isOpen);
+  });
+});
+
+// ── SHAP chart instance ───────────────────────────────────────────────────────
+let shapChart = null;
+
+// ── Form submit ───────────────────────────────────────────────────────────────
+const MODEL_COLORS = {
+  "Logistic Regression": "#ef4444",
+  "Random Forest":       "#10b981",
+  "Gradient Boosting":   "#f59e0b",
+  "XGBoost":             "#8b5cf6",
+};
+
+document.getElementById('form').addEventListener('submit', async e => {
+  e.preventDefault();
+
+  const btn = document.getElementById('btn-submit');
+  const spinner = document.getElementById('spinner');
+  const btnText = document.getElementById('btn-text');
+  btn.disabled = true;
+  spinner.style.display = 'block';
+  btnText.textContent = 'Calculating... · กำลังคำนวณ...';
+
+  // Collect form data
+  const fd = new FormData(e.target);
+  const payload = {};
+
+  // Numeric fields
+  ['Age','BMI','sex_male','hnc_stage',
+   'rt_total_dose','rt_dose_per_fraction','rt_fractions',
+   'max_stenosis_pre_rt','total_plaque_pre_rt','mean_imt_pre_rt',
+   'BUN','Cr','GFR','Total_cholesterol','LDL','Fasting_blood_sugar'
+  ].forEach(k => {
+    const v = fd.get(k);
+    payload[k] = v !== null ? parseFloat(v) : 0;
+  });
+
+  // Checkboxes (default 0 if unchecked)
+  ['htn','dm','dlp','cad','pad','heart_disease','thyroid','smoking',
+   'antiplatelet','anticoagulant','acei','ccb','statin',
+   'rt_definitive','rt_adjuvant',
+   'seen_carotid_pre_rt','sig_stenosis_pre_rt',
+   'seen_carotid_post_rt','progression_post_rt'
+  ].forEach(k => {
+    payload[k] = fd.get(k) === '1' ? 1 : 0;
+  });
+
+  try {
+    const resp = await fetch('/api/predict', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!resp.ok) throw new Error(`Server error: ${resp.status}`);
+    const data = await resp.json();
+    renderResults(data);
+  } catch (err) {
+    alert('Prediction failed: ' + err.message + '\n\nMake sure the server is running.');
+  } finally {
+    btn.disabled = false;
+    spinner.style.display = 'none';
+    btnText.textContent = 'Predict ICE Risk · คำนวณความเสี่ยง';
+  }
+});
+
+function renderResults(data) {
+  document.getElementById('placeholder').style.display = 'none';
+  document.getElementById('results-inner').style.display = 'block';
+
+  // Risk banner
+  const banner = document.getElementById('risk-banner');
+  banner.className = 'risk-banner ' + (data.risk_level || 'low');
+  document.getElementById('big-pct').textContent = data.avg_prob_pct.toFixed(1) + '%';
+  document.getElementById('label-en').textContent = data.risk_en;
+  document.getElementById('label-th').textContent = data.risk_th;
+
+  // Model bars
+  const barsDiv = document.getElementById('model-bars');
+  barsDiv.innerHTML = '';
+  const preds = data.predictions || {};
+  for (const [name, prob] of Object.entries(preds)) {
+    if (prob === null) continue;
+    const color = MODEL_COLORS[name] || '#6b7280';
+    const barPct = Math.min(prob, 30); // cap bar at 30% for visual clarity
+    const row = document.createElement('div');
+    row.className = 'model-row';
+    row.innerHTML = `
+      <span class="model-name">${name}</span>
+      <div class="bar-wrap">
+        <div class="bar-fill" style="width:${(barPct/30)*100}%;background:${color}"></div>
+      </div>
+      <span class="pct-label" style="color:${color}">${prob.toFixed(2)}%</span>
+    `;
+    barsDiv.appendChild(row);
+  }
+
+  // SHAP chart
+  const shapData = data.shap;
+  if (shapData && shapData.features && shapData.features.length > 0) {
+    document.getElementById('shap-section').style.display = 'block';
+    document.getElementById('shap-model-name').textContent = shapData.model;
+
+    const features = shapData.features.slice().reverse();
+    const values   = shapData.values.slice().reverse();
+    const bgColors = values.map(v => v >= 0 ? 'rgba(239,68,68,0.75)' : 'rgba(59,130,246,0.75)');
+
+    if (shapChart) shapChart.destroy();
+    const ctx = document.getElementById('shap-chart').getContext('2d');
+    shapChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: features,
+        datasets: [{
+          label: 'SHAP value',
+          data: values,
+          backgroundColor: bgColors,
+          borderWidth: 0,
+          borderRadius: 3,
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => `SHAP: ${ctx.raw.toFixed(4)}`
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(0,0,0,.06)' },
+            ticks: { font: { size: 10 } },
+            title: {
+              display: true,
+              text: 'SHAP value (red = increases risk, blue = decreases risk)',
+              font: { size: 9 },
+              color: '#6b7280'
+            }
+          },
+          y: {
+            ticks: { font: { size: 10 } },
+            grid: { display: false }
+          }
+        }
+      }
+    });
+  }
+
+  // Scroll into view on mobile
+  if (window.innerWidth < 900) {
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+</script>
+</body>
+</html>

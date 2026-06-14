@@ -1,0 +1,277 @@
+{
+  "feature_cols": [
+    "Age",
+    "BMI",
+    "sex_male",
+    "htn",
+    "dm",
+    "dlp",
+    "cad",
+    "pad",
+    "heart_disease",
+    "thyroid",
+    "smoking",
+    "antiplatelet",
+    "anticoagulant",
+    "acei",
+    "ccb",
+    "statin",
+    "hnc_stage",
+    "rt_total_dose",
+    "rt_dose_per_fraction",
+    "rt_fractions",
+    "rt_definitive",
+    "rt_adjuvant",
+    "seen_carotid_pre_rt",
+    "sig_stenosis_pre_rt",
+    "max_stenosis_pre_rt",
+    "total_plaque_pre_rt",
+    "mean_imt_pre_rt",
+    "seen_carotid_post_rt",
+    "progression_post_rt",
+    "BUN",
+    "Cr",
+    "GFR",
+    "Total cholesterol",
+    "LDL",
+    "Fasting blood sugar"
+  ],
+  "num_cols": [
+    "Age",
+    "BMI",
+    "sex_male",
+    "htn",
+    "dm",
+    "dlp",
+    "cad",
+    "pad",
+    "heart_disease",
+    "thyroid",
+    "smoking",
+    "antiplatelet",
+    "anticoagulant",
+    "acei",
+    "ccb",
+    "statin",
+    "hnc_stage",
+    "rt_total_dose",
+    "rt_dose_per_fraction",
+    "rt_fractions",
+    "rt_definitive",
+    "rt_adjuvant",
+    "seen_carotid_pre_rt",
+    "sig_stenosis_pre_rt",
+    "max_stenosis_pre_rt",
+    "total_plaque_pre_rt",
+    "mean_imt_pre_rt",
+    "seen_carotid_post_rt",
+    "progression_post_rt",
+    "BUN",
+    "Cr",
+    "GFR",
+    "Total cholesterol",
+    "LDL",
+    "Fasting blood sugar"
+  ],
+  "bool_cols": [],
+  "medians": {
+    "Age": 58.0,
+    "BMI": 21.0,
+    "sex_male": 1.0,
+    "htn": 0.0,
+    "dm": 0.0,
+    "dlp": 0.0,
+    "cad": 0.0,
+    "pad": 0.0,
+    "heart_disease": 0.0,
+    "thyroid": 0.0,
+    "smoking": 1.0,
+    "antiplatelet": 0.0,
+    "anticoagulant": 0.0,
+    "acei": 0.0,
+    "ccb": 0.0,
+    "statin": 0.0,
+    "hnc_stage": 4.0,
+    "rt_total_dose": 70.0,
+    "rt_dose_per_fraction": 2.12,
+    "rt_fractions": 33.0,
+    "rt_definitive": 1.0,
+    "rt_adjuvant": 0.0,
+    "seen_carotid_pre_rt": 0.0,
+    "sig_stenosis_pre_rt": 0.0,
+    "max_stenosis_pre_rt": 0.0,
+    "total_plaque_pre_rt": 0.0,
+    "mean_imt_pre_rt": 0.5099999999999999,
+    "seen_carotid_post_rt": 0.0,
+    "progression_post_rt": 0.0,
+    "BUN": 12.0,
+    "Cr": 0.85,
+    "GFR": 92.0,
+    "Total cholesterol": 201.0,
+    "LDL": 127.0,
+    "Fasting blood sugar": 98.0
+  },
+  "feature_labels": {
+    "Age": {
+      "en": "Age (years)",
+      "th": "อายุ (ปี)"
+    },
+    "BMI": {
+      "en": "BMI (kg/m²)",
+      "th": "ดัชนีมวลกาย"
+    },
+    "sex_male": {
+      "en": "Sex (Male=1)",
+      "th": "เพศชาย"
+    },
+    "htn": {
+      "en": "Hypertension",
+      "th": "ความดันโลหิตสูง"
+    },
+    "dm": {
+      "en": "Diabetes",
+      "th": "เบาหวาน"
+    },
+    "dlp": {
+      "en": "Dyslipidemia",
+      "th": "ไขมันในเลือดสูง"
+    },
+    "cad": {
+      "en": "Coronary Artery Disease",
+      "th": "โรคหลอดเลือดหัวใจ"
+    },
+    "pad": {
+      "en": "Peripheral Artery Disease",
+      "th": "โรคหลอดเลือดส่วนปลาย"
+    },
+    "heart_disease": {
+      "en": "Heart Disease",
+      "th": "โรคหัวใจ"
+    },
+    "thyroid": {
+      "en": "Thyroid Disease",
+      "th": "โรคไทรอยด์"
+    },
+    "smoking": {
+      "en": "Smoking",
+      "th": "สูบบุหรี่"
+    },
+    "antiplatelet": {
+      "en": "Antiplatelet",
+      "th": "ยาต้านเกล็ดเลือด"
+    },
+    "anticoagulant": {
+      "en": "Anticoagulant",
+      "th": "ยาต้านการแข็งตัวของเลือด"
+    },
+    "acei": {
+      "en": "ACEI",
+      "th": "ยา ACEI"
+    },
+    "ccb": {
+      "en": "CCB",
+      "th": "ยา CCB"
+    },
+    "statin": {
+      "en": "Statin",
+      "th": "ยาสแตติน"
+    },
+    "hnc_stage": {
+      "en": "HNC Stage (0=In situ, 4=Stage IV)",
+      "th": "ระยะมะเร็งศีรษะ-คอ"
+    },
+    "rt_total_dose": {
+      "en": "RT Total Dose (Gy)",
+      "th": "ปริมาณรังสีรวม (Gy)"
+    },
+    "rt_dose_per_fraction": {
+      "en": "RT Dose/Fraction (Gy)",
+      "th": "ปริมาณรังสีต่อครั้ง (Gy)"
+    },
+    "rt_fractions": {
+      "en": "Number of RT Fractions",
+      "th": "จำนวนครั้งของการฉายแสง"
+    },
+    "rt_definitive": {
+      "en": "Definitive RT",
+      "th": "การฉายแสงแบบ Definitive"
+    },
+    "rt_adjuvant": {
+      "en": "Adjuvant RT",
+      "th": "การฉายแสงแบบ Adjuvant"
+    },
+    "seen_carotid_pre_rt": {
+      "en": "Carotid Lesion Seen Pre-RT",
+      "th": "พบรอยโรคหลอดเลือดก่อนฉายแสง"
+    },
+    "sig_stenosis_pre_rt": {
+      "en": "Significant Stenosis Pre-RT (>50%)",
+      "th": "หลอดเลือดตีบ >50% ก่อนฉายแสง"
+    },
+    "max_stenosis_pre_rt": {
+      "en": "Max Stenosis Pre-RT (%)",
+      "th": "ความตีบสูงสุดก่อนฉายแสง (%)"
+    },
+    "total_plaque_pre_rt": {
+      "en": "Total Plaque Score Pre-RT",
+      "th": "คะแนน Plaque รวมก่อนฉายแสง"
+    },
+    "mean_imt_pre_rt": {
+      "en": "Mean IMT Pre-RT (mm)",
+      "th": "ความหนา Intima-Media เฉลี่ย (mm)"
+    },
+    "seen_carotid_post_rt": {
+      "en": "Carotid Lesion Seen Post-RT",
+      "th": "พบรอยโรคหลอดเลือดหลังฉายแสง"
+    },
+    "progression_post_rt": {
+      "en": "Progression to Significant Lesion Post-RT",
+      "th": "หลอดเลือดแย่ลงหลังฉายแสง"
+    },
+    "BUN": {
+      "en": "BUN (mg/dL)",
+      "th": "ค่า BUN (mg/dL)"
+    },
+    "Cr": {
+      "en": "Creatinine (mg/dL)",
+      "th": "ครีเอตินีน (mg/dL)"
+    },
+    "GFR": {
+      "en": "GFR (mL/min)",
+      "th": "ค่า GFR (mL/min)"
+    },
+    "Total cholesterol": {
+      "en": "Total Cholesterol (mg/dL)",
+      "th": "คอเลสเตอรอลรวม (mg/dL)"
+    },
+    "LDL": {
+      "en": "LDL (mg/dL)",
+      "th": "LDL (mg/dL)"
+    },
+    "Fasting blood sugar": {
+      "en": "Fasting Blood Sugar (mg/dL)",
+      "th": "น้ำตาลกลูโคสขณะอดอาหาร (mg/dL)"
+    }
+  },
+  "model_summary": {
+    "Logistic Regression": {
+      "auc_oof": 0.216,
+      "file": "logistic_regression.pkl"
+    },
+    "Random Forest": {
+      "auc_oof": 0.5445,
+      "file": "random_forest.pkl"
+    },
+    "Gradient Boosting": {
+      "auc_oof": 0.5399,
+      "file": "gradient_boosting.pkl"
+    },
+    "XGBoost": {
+      "auc_oof": 0.5044,
+      "file": "xgboost.pkl"
+    }
+  },
+  "prevalence": 0.013933547695605574,
+  "n_patients": 933,
+  "n_ice": 13
+}
